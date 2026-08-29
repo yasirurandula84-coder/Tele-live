@@ -62,7 +62,7 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    const streamUrl = "https://live.adultiptv.net/hardcore.m3u8";
+    const streamUrl = "https://live.adultiptv.net/livecams.m3u8";
     
     // Telegram RTMPS URL සහ Stream Key එක
     const telegramRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/4296325215:nEHOFspVGGafSJe6ZhLMrw";
