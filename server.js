@@ -62,10 +62,10 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    const streamUrl = "https://live.adultiptv.net/livecams.m3u8";
+    const streamUrl = "http://a0bn5xro.rostelekom.xyz/iptv/2TBC4G2WWDG6RSUSN5SXSQEC/12148/index.m3u8";
     
     // Telegram RTMPS URL සහ Stream Key එක
-    const telegramRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/4296325215:nEHOFspVGGafSJe6ZhLMrw";
+    const telegramRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/4460745109:YVxQULXP_w1ErTL_nHPuJw";
 
     console.log('Starting Auto-Recovery Telegram Live streaming from:', streamUrl);
 
