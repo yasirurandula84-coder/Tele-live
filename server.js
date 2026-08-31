@@ -64,7 +64,7 @@ app.post('/start-live', (req, res) => {
     }
 
     // ප්‍රොක්සි එක නැතුව කෙලින්ම ඔයා දුන් M3U8 ලින්ක් එක පාවිච්චි කිරීම
-    const streamUrl = "https://live.mycamtv.com/skinny.m3u8";
+    const streamUrl = "http://190.11.225.124:5000/live/playboy_hd/playlist.m3u8";
     
     // ඔයා දුන් RTMP URL එක සහ Stream Key එක
     const customRtmpUrl = "rtmps://fa723fc1b171.global-contribute.live-video.net:443/app/sk_us-west-2_tC2XgV8VzxBW_Fkc0dd4gXO2zpnnx3xl9zDPw6NBN47";
