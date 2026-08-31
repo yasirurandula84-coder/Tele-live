@@ -56,18 +56,20 @@ app.get('/proxy', async (req, res) => {
     }
 });
 
-// Telegram වෙත ලයිව් එක පටන් ගන්න රූට් එක
+// ලයිව් එක පටන් ගන්න රූට් එක (Amazon IVS / Custom RTMP සඳහා)
+// ලයිව් එක පටන් ගන්න රූට් එක (ප්‍රොක්සි නොමැතිව කෙලින්ම ලින්ක් එක ලබාදීම)
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    const streamUrl = "http://a0bn5xro.rostelekom.xyz/iptv/2TBC4G2WWDG6RSUSN5SXSQEC/12148/index.m3u8";
+    // ප්‍රොක්සි එක නැතුව කෙලින්ම ඔයා දුන් M3U8 ලින්ක් එක පාවිච්චි කිරීම
+    const streamUrl = "https://live.mycamtv.com/skinny.m3u8";
     
-    // Telegram RTMPS URL සහ Stream Key එක
-    const telegramRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/4460745109:YVxQULXP_w1ErTL_nHPuJw";
+    // ඔයා දුන් RTMP URL එක සහ Stream Key එක
+    const customRtmpUrl = "rtmps://fa723fc1b171.global-contribute.live-video.net:443/app/sk_us-west-2_tC2XgV8VzxBW_Fkc0dd4gXO2zpnnx3xl9zDPw6NBN47";
 
-    console.log('Starting Auto-Recovery Telegram Live streaming from:', streamUrl);
+    console.log('Starting Auto-Recovery Live streaming directly from:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -112,9 +114,9 @@ app.post('/start-live', (req, res) => {
                 '-max_muxing_queue_size', '9999',
                 '-f', 'flv'
             ])
-            .output(telegramRtmpUrl)
+            .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('FFmpeg Stream spawned for Telegram:', commandLine);
+                console.log('FFmpeg Stream spawned directly:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -140,8 +142,9 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Telegram Live stream started successfully! 🚀🔥</h2>');
+    res.send('<h2>Direct Live stream started successfully! 🚀🔥</h2>');
 });
+
 
 // ලයිව් එක නතර කරන්න රූට් එක
 app.get('/stop-live', (req, res) => {
