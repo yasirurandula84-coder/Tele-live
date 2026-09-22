@@ -56,20 +56,19 @@ app.get('/proxy', async (req, res) => {
     }
 });
 
-// ලයිව් එක පටන් ගන්න රූට් එක (Amazon IVS / Custom RTMP සඳහා)
-// ලයිව් එක පටන් ගන්න රූට් එක (ප්‍රොක්සි නොමැතිව කෙලින්ම ලින්ක් එක ලබාදීම)
+// Telegram වෙත ලයිව් එක පටන් ගන්න රූට් එක
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // ප්‍රොක්සි එක නැතුව කෙලින්ම ඔයා දුන් M3U8 ලින්ක් එක පාවිච්චි කිරීම
-    const streamUrl = "http://190.11.225.124:5000/live/playboy_hd/playlist.m3u8";
+    // ලයිව් ලබාගන්නා M3U8 ලින්ක් එක
+    const streamUrl = "https://dai.google.com/ssai/event/mcRw3aKwRNOCgMah1cjM1w/master.m3u8";
     
-    // ඔයා දුන් RTMP URL එක සහ Stream Key එක
-    const customRtmpUrl = "rtmps://fa723fc1b171.global-contribute.live-video.net:443/app/sk_us-west-2_tC2XgV8VzxBW_Fkc0dd4gXO2zpnnx3xl9zDPw6NBN47";
+    // Telegram RTMP URL සහ Stream Key එක එකතු කර සකස් කළ URL එක
+    const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Auto-Recovery Live streaming directly from:', streamUrl);
+    console.log('Starting Telegram Live streaming directly from:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -116,7 +115,7 @@ app.post('/start-live', (req, res) => {
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('FFmpeg Stream spawned directly:', commandLine);
+                console.log('FFmpeg Telegram Stream spawned directly:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -142,9 +141,8 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Direct Live stream started successfully! 🚀🔥</h2>');
+    res.send('<h2>Telegram Live stream started successfully! 🚀🔥</h2>');
 });
-
 
 // ලයිව් එක නතර කරන්න රූට් එක
 app.get('/stop-live', (req, res) => {
