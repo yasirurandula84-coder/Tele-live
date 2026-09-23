@@ -75,7 +75,7 @@ app.post('/start-live', (req, res) => {
             activeStreamProcess = null;
         }
 
-        const command = ffmpeg(streamUrl)
+                const command = ffmpeg(streamUrl)
             .inputOptions([
                 '-re',
                 '-reconnect 1',
@@ -84,10 +84,10 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
                 '-analyzeduration 20M',
-                // සයිට් එකෙන් බ්ලොක් නොකිරීමට User-Agent සහ Referer ලබාදීම
                 '-user_agent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
                 '-headers', 'Referer: https://mycamtv.com\r\nOrigin: https://mycamtv.com\r\n'
-            ])
+    
+      ])
             .outputOptions([
                 '-sws_flags', 'fast_bilinear',
                 '-vf', 'setpts=0.998*PTS,crop=in_w-40:in_h-40:20:20,scale=1280:720,eq=saturation=1.1:contrast=1.15,' +
