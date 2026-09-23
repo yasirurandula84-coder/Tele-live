@@ -25,10 +25,9 @@ app.get('/proxy', async (req, res) => {
     try {
         const response = await fetch(targetUrl, {
             headers: {
-                'User-Agent': 'VLC/3.0.20 LibVLC/3.0.20',
-                'Icy-MetaData': '1',
-                'Accept-Encoding': 'identity',
-                'Referer': 'https://www.itcnbd.live/'
+                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
+                'Referer': 'https://mycamtv.com/',
+                'Origin': 'https://mycamtv.com'
             }
         });
         response.headers.forEach((v, n) => res.setHeader(n, v));
@@ -62,8 +61,8 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // ලයිව් ලබාගන්නා M3U8 ලින්ක් එක
-    const streamUrl = "https://dai.google.com/ssai/event/mcRw3aKwRNOCgMah1cjM1w/master.m3u8";
+    // ඔයා හොයාගත්ත අලුත් M3U8 ලින්ක් එක
+    const streamUrl = "https://media-hls.doppiocdn.media/b-hls-21/176473906/176473906_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
     
     // Telegram RTMP URL සහ Stream Key එක එකතු කර සකස් කළ URL එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
@@ -84,7 +83,10 @@ app.post('/start-live', (req, res) => {
                 '-reconnect_delay_max 5',
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
-                '-analyzeduration 20M'
+                '-analyzeduration 20M',
+                // සයිට් එකෙන් බ්ලොක් නොකිරීමට User-Agent සහ Referer ලබාදීම
+                '-user_agent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
+                '-headers', 'Referer: https://mycamtv.com\r\nOrigin: https://mycamtv.com\r\n'
             ])
             .outputOptions([
                 '-sws_flags', 'fast_bilinear',
@@ -115,7 +117,7 @@ app.post('/start-live', (req, res) => {
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('FFmpeg Telegram Stream spawned directly:', commandLine);
+                console.log('FFmpeg Telegram Stream spawned with headers:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -141,7 +143,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Telegram Live stream started successfully! 🚀🔥</h2>');
+    res.send('<h2>Telegram Live stream started successfully with Headers! 🚀🔥</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
