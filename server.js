@@ -17,57 +17,19 @@ app.use(express.json());
 
 let activeStreamProcess = null;
 
-// ප්‍රොක්සි රූට් එක
-app.get('/proxy', async (req, res) => {
-    let targetUrl = req.query.url;
-    if (!targetUrl) return res.status(400).send('Missing url');
-
-    try {
-        const response = await fetch(targetUrl, {
-            headers: {
-                'User-Agent': 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
-                'Referer': 'https://mycamtv.com/',
-                'Origin': 'https://mycamtv.com'
-            }
-        });
-        response.headers.forEach((v, n) => res.setHeader(n, v));
-        res.status(response.status);
-
-        if (targetUrl.endsWith('.m3u8')) {
-            const text = await response.text();
-            const rewritten = text.split('\n').map(line => {
-                line = line.trim();
-                if (line && !line.startsWith('#')) {
-                    let absoluteUrl = line;
-                    if (!line.startsWith('http')) {
-                        const urlObj = new URL(targetUrl);
-                        absoluteUrl = `${urlObj.origin}${line.startsWith('/') ? '' : '/'}${line}`;
-                    }
-                    return `/proxy?url=${encodeURIComponent(absoluteUrl)}`;
-                }
-                return line;
-            }).join('\n');
-            return res.send(rewritten);
-        }
-        response.body.pipe(res);
-    } catch (err) {
-        res.status(500).send('Proxy error');
-    }
-});
-
 // Telegram වෙත ලයිව් එක පටන් ගන්න රූට් එක
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // _HLS_msn සහ _HLS_part අයින් කර සකස් කළ Base M3U8 ලින්ක් එක
+    // MSN සහ Part නැති කරපු Clean Base Link එක (අලුත්ම pkey එක සමඟ)
     const streamUrl = "https://media-hls.doppiocdn.media/b-hls-10/194112856/194112856_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
     
-    // Telegram RTMP URL සහ Stream Key එක එකතු කර සකස් කළ URL එක
+    // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Telegram Live streaming directly from:', streamUrl);
+    console.log('Starting Telegram Live streaming from Base URL:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -116,7 +78,7 @@ app.post('/start-live', (req, res) => {
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('FFmpeg Telegram Stream spawned with headers:', commandLine);
+                console.log('FFmpeg Stream spawned:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -142,7 +104,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Telegram Live stream started successfully with Clean Link! 🚀🔥</h2>');
+    res.send('<h2>Telegram Live stream started with Base Link! 🚀🔥</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
