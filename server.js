@@ -61,8 +61,9 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // ඔයා හොයාගත්ත අලුත් M3U8 ලින්ක් එක
-    const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/143937077_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ&_HLS_msn=187&_HLS_part=16";
+// _HLS_msn සහ _HLS_part කොටස් අයින් කරපු ලින්ක් එක
+const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/143937077_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
+
     
     // Telegram RTMP URL සහ Stream Key එක එකතු කර සකස් කළ URL එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
