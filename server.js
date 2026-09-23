@@ -61,9 +61,8 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-// _HLS_msn සහ _HLS_part කොටස් අයින් කරපු ලින්ක් එක
-const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/143937077_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
-
+    // _HLS_msn සහ _HLS_part අයින් කර සකස් කළ Base M3U8 ලින්ක් එක
+    const streamUrl = "https://media-hls.doppiocdn.media/b-hls-10/194112856/194112856_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
     
     // Telegram RTMP URL සහ Stream Key එක එකතු කර සකස් කළ URL එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
@@ -76,7 +75,7 @@ const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/14393707
             activeStreamProcess = null;
         }
 
-                const command = ffmpeg(streamUrl)
+        const command = ffmpeg(streamUrl)
             .inputOptions([
                 '-re',
                 '-reconnect 1',
@@ -87,8 +86,7 @@ const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/14393707
                 '-analyzeduration 20M',
                 '-user_agent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
                 '-headers', 'Referer: https://mycamtv.com\r\nOrigin: https://mycamtv.com\r\n'
-    
-      ])
+            ])
             .outputOptions([
                 '-sws_flags', 'fast_bilinear',
                 '-vf', 'setpts=0.998*PTS,crop=in_w-40:in_h-40:20:20,scale=1280:720,eq=saturation=1.1:contrast=1.15,' +
@@ -144,7 +142,7 @@ const streamUrl = "https://media-hls.doppiocdn.media/b-hls-25/143937077/14393707
 
     startStream();
 
-    res.send('<h2>Telegram Live stream started successfully with Headers! 🚀🔥</h2>');
+    res.send('<h2>Telegram Live stream started successfully with Clean Link! 🚀🔥</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
