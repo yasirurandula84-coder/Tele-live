@@ -29,7 +29,7 @@ app.post('/start-live', (req, res) => {
     // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Fancode Cricket Live Stream:', streamUrl);
+    console.log('Starting Original Fancode Live Stream:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -46,40 +46,20 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
                 '-analyzeduration 20M',
-                '-user_agent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
-                // Fancode සවර් එකට අවශ්‍ය Referer සහ Origin හෙඩර්ස්
-                '-headers', 'Referer: https://www.fancode.com/\r\nOrigin: https://www.fancode.com\r\n'
+                '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                '-headers', 'Referer: https://fancode.com/\r\nOrigin: https://fancode.com\r\n'
             ])
             .outputOptions([
-                '-sws_flags', 'fast_bilinear',
-                '-vf', 'setpts=0.998*PTS,scale=1280:720,eq=saturation=1.1:contrast=1.15,' +
-                       'drawbox=x=1140:y=25:w=100:h=65:color=black@0.85:t=fill,' +
-                       'drawbox=x=1140:y=25:w=100:h=65:color=yellow@0.9:t=2,' +
-                       'drawtext=text=LANKA:fontcolor=white:fontsize=18:x=1165:y=32,' +
-                       'drawtext=text=LIVE:fontcolor=yellow:fontsize=20:x=1158:y=55,' +
-                       'drawtext=text=SHARE_NOW:fontcolor=white@0.75:fontsize=22:x=(w-text_w)/2:y=h-50',
-            
-                '-af', 'atempo=1.002',
-
+                // කිසිදු වීඩියෝ/සවුන්ඩ් ෆිල්ටර් එකක් නැත (Original Stream Copy)
                 '-threads', '4',               
-                '-r', '25',                    
-                '-c:v', 'libx264',
-                '-preset', 'ultrafast',        
-                '-tune', 'zerolatency',
-                '-b:v', '1500k',               
-                '-maxrate', '2000k',
-                '-bufsize', '4000k',
-                '-pix_fmt', 'yuv420p',
-                '-g', '50',                    
-                '-c:a', 'aac',
-                '-b:a', '128k',
-                '-ar', '44100',
+                '-c:v', 'copy',                // මුල් වීඩියෝ කොالිටි එක එෙම්ම ලබාදෙයි (re-encode වීම වළක්වයි)
+                '-c:a', 'copy',                // මුල් ශබ්දය (Original Audio) කිසිදු වෙනසකින් තොරව ලබාදෙයි
                 '-max_muxing_queue_size', '9999',
                 '-f', 'flv'
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('Fancode FFmpeg Stream spawned:', commandLine);
+                console.log('Original FFmpeg Stream spawned:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -105,7 +85,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Fancode Cricket Live stream started successfully! 🏏🔥🚀</h2>');
+    res.send('<h2>Original Fancode Live stream started successfully! 🏏🔥</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
