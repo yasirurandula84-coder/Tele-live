@@ -1,8 +1,10 @@
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const ffmpeg = require('fluent-ffmpeg');
+const fetch = require('node-fetch');
 
 const app = express();
 const server = http.createServer(app);
@@ -10,24 +12,58 @@ const io = new Server(server);
 
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 let activeStreamProcess = null;
 
+// මූලික Akamai HLS ලින්ක් එක
+const TARGET_STREAM = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/std_lrh-800300010.m3u8?hdnea=exp=1790543196~acl=/*~id=62955783839668586974472942213864~hmac=5aaf548e4fd89269c7f41b0f3dcd7aee0c80f6453c72821825c044ea07340578";
+
+// 1. Local Proxy Route එක (403 Error එක නැති කිරීමට VLC User-Agent සහ Headers සමඟ m3u8 ෆෙච් කිරීම)
+app.get('/proxy.m3u8', async (req, res) => {
+    try {
+        const response = await fetch(TARGET_STREAM, {
+            headers: {
+                'User-Agent': 'VLC/3.0.20 LibVLC/3.0.20',
+                'Referer': 'https://www.sonyliv.com/'
+            }
+        });
+        
+        if (!response.ok) {
+            return res.status(response.status).send(`Akamai fetch failed: ${response.statusText}`);
+        }
+
+        let body = await response.text();
+        
+        // TS Segment වලටත් අවශ්‍ය නම් පූර්ණ ලින්ක් සකස් කිරීම
+        const baseUrl = TARGET_STREAM.substring(0, TARGET_STREAM.lastIndexOf('/') + 1);
+        body = body.replace(/^(?!#)(.*\.ts.*)$/gm, (match) => {
+            return baseUrl + match.trim();
+        });
+
+        res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+        res.send(body);
+    } catch (err) {
+        res.status(500).send("Proxy Error: " + err.message);
+    }
+});
+
+// 2. Live Stream එක ආරම්භ කිරීමේ API එක
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // ඔබේ m3u8 ලින්ක් එක
-    const streamUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/std_lrh-800300010.m3u8?hdnea=exp=1790543196~acl=/*~id=62955783839668586974472942213864~hmac=5aaf548e4fd89269c7f41b0f3dcd7aee0c80f6453c72821825c044ea07340578";
+    // FFmpeg දැන් ඉල්ලන්නේ අපේම ලෝකල් ප්‍රොක්සි ලින්ක් එකයි (403 එන්නේ නැත)
+    const streamUrl = `http://localhost:${PORT}/proxy.m3u8`;
     
     // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Live Stream via FFmpeg...');
+    console.log('Starting Live Stream via Local Proxy & FFmpeg...');
 
     function startStream() {
         if (activeStreamProcess) {
@@ -35,7 +71,7 @@ app.post('/start-live', (req, res) => {
             activeStreamProcess = null;
         }
 
-                const command = ffmpeg(streamUrl)
+        const command = ffmpeg(streamUrl)
             .inputOptions([
                 '-re',
                 '-reconnect 1',
@@ -44,15 +80,13 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 100M',
                 '-analyzeduration 50M',
-                // SonyLIV Mobile App එකේ User-Agent එක භාවිත කිරීම
-                '-user_agent', 'okhttp/4.9.2',
-                '-headers', 'Referer: https://www.sonyliv.com/\x0d\x0aOrigin: https://www.sonyliv.com\x0d\x0a'
+                '-user_agent', 'VLC/3.0.20 LibVLC/3.0.20',
+                '-headers', 'Referer: https://www.sonyliv.com/\x0d\x0a'
             ])
-
             .outputOptions([
                 '-threads', '4',               
-                '-c:v', 'copy',                // Video එක Re-encode නොකර Copy කිරීම (CPU Load අඩුයි)
-                '-c:a', 'aac',                 // Audio එක AAC වලට Convert කිරීම (Telegram එකට අවශ්‍යයි)
+                '-c:v', 'copy',                // Video එක Re-encode නොකර Copy කිරීම
+                '-c:a', 'aac',                 // Audio එක AAC වලට Convert කිරීම (Telegram සඳහා අත්‍යවශ්‍යයි)
                 '-b:a', '128k',
                 '-max_muxing_queue_size', '9999',
                 '-f', 'flv'
@@ -85,9 +119,10 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Live stream started successfully via FFmpeg to Telegram! 🏏🔥</h2>');
+    res.send('<h2>Live stream started successfully via Local Proxy to Telegram! 🏏🔥</h2>');
 });
 
+// 3. Live Stream එක නැවැත්වීමේ API එක
 app.get('/stop-live', (req, res) => {
     if (activeStreamProcess) {
         activeStreamProcess.kill('SIGKILL');
