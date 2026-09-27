@@ -24,7 +24,7 @@ app.post('/start-live', (req, res) => {
     }
 
     // MSN සහ Part නැති කරපු Clean Base Link එක (අලුත්ම pkey එක සමඟ)
-    const streamUrl = "https://media-hls.doppiocdn.media/b-hls-10/194112856/194112856_480p.m3u8?playlistType=lowLatency&preferredVideoCodec=h264&psch=v2&pkey=NTK9aqcLmNFMWrpQ";
+    const streamUrl = "https://in-mc-flive.fancode.com/mumbai/4249779_english_hls_5b5f2be03a98278_1ta-di_h264/1080p.m3u8?hdntl=Expires=1790581085~_GO=Generated~acl=/mumbai/4249779_english_hls_5b5f2be03a98278_1ta-di_h264/*~Signature=AUh_zpXFFvBB8PuYQyTwqkTbh5t9O99Uz2sf4GLwTO5cw_FC4K23xHq_UDqNKAUSqVOmXusOwFRDws5oXvKk6aY-YtcN";
     
     // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
