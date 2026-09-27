@@ -21,11 +21,13 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // බේස් යුර්එල් එක සහ ටෝකන් එක එකම ස්ට්‍රින්ග් එකකට සම්පූර්ණයෙන්ම සම්බන්ධ කිරීම
-    const streamUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/master.m3u8?hdnea=exp=1790544032~acl=/*~id=94549746042195441414919381662442~hmac=95e09da6d7e4a59ae5f2740e0effa5928c46e5a24f6d0caec0fa865e3f3e91da";
+    // VLC එකේ වැඩ කළ නිවැරදිම ලින්ක් එක (Media m3u8 stream + Token)
+    const streamUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/std_lrh-800300010.m3u8?hdnea=exp=1790543196~acl=/*~id=62955783839668586974472942213864~hmac=5aaf548e4fd89269c7f41b0f3dcd7aee0c80f6453c72821825c044ea07340578";
+    
+    // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Fixed ENG vs SL Live Stream...');
+    console.log('Starting Working ENG vs SL Live Stream via FFmpeg...');
 
     function startStream() {
         if (activeStreamProcess) {
@@ -42,14 +44,14 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
                 '-analyzeduration 20M',
-                '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                // හෙඩර්ස් ටික කැඩී යාම වැළැක්වීමට එකම පේළියක තබා ඇත
+                // VLC මඟින් යවන සාමාන්‍ය User-Agent සහ Headers භාවිත කිරීම
+                '-user_agent', 'Lavf/60.3.100',
                 '-headers', 'Referer: https://www.sonyliv.com/\x0d\x0aOrigin: https://www.sonyliv.com\x0d\x0a'
             ])
             .outputOptions([
                 '-threads', '4',               
-                '-c:v', 'copy',                
-                '-c:a', 'copy',                
+                '-c:v', 'copy',                // Original Video (No re-encode)
+                '-c:a', 'copy',                // Original Audio (No re-encode)
                 '-max_muxing_queue_size', '9999',
                 '-f', 'flv'
             ])
@@ -81,7 +83,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>ENG vs SL Live stream started with token fix! 🏏🔥</h2>');
+    res.send('<h2>ENG vs SL Live stream started successfully via VLC working link! 🏏🔥</h2>');
 });
 
 app.get('/stop-live', (req, res) => {
