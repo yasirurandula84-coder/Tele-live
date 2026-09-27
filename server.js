@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const fetch = require('node-fetch');
 const http = require('http');
 const { Server } = require('socket.io');
 const ffmpeg = require('fluent-ffmpeg');
@@ -17,21 +16,16 @@ app.use(express.json());
 
 let activeStreamProcess = null;
 
-// Telegram වෙත ලයිව් එක පටන් ගන්න රූට් එක
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // JSON එකෙන් ගත්ත Sri Lanka vs England (3rd ODI) මැච් එකේ base_url සහ token එක එකතු කළ සම්පූර්ණ ලින්ක් එක
-    const baseUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/master.m3u8";
-    const token = "?hdnea=exp=1790544032~acl=/*~id=94549746042195441414919381662442~hmac=95e09da6d7e4a59ae5f2740e0effa5928c46e5a24f6d0caec0fa865e3f3e91da";
-    const streamUrl = baseUrl + token;
-    
-    // Telegram RTMP URL සහ Stream Key එක
+    // බේස් යුර්එල් එක සහ ටෝකන් එක එකම ස්ට්‍රින්ග් එකකට සම්පූර්ණයෙන්ම සම්බන්ධ කිරීම
+    const streamUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/master.m3u8?hdnea=exp=1790544032~acl=/*~id=94549746042195441414919381662442~hmac=95e09da6d7e4a59ae5f2740e0effa5928c46e5a24f6d0caec0fa865e3f3e91da";
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Sri Lanka vs England ODI Live Stream:', streamUrl);
+    console.log('Starting Fixed ENG vs SL Live Stream...');
 
     function startStream() {
         if (activeStreamProcess) {
@@ -49,18 +43,19 @@ app.post('/start-live', (req, res) => {
                 '-probesize 50M',
                 '-analyzeduration 20M',
                 '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-                '-headers', 'Referer: https://www.sonyliv.com/\r\nOrigin: https://www.sonyliv.com\r\nAccept: */*\r\nConnection: keep-alive\r\n'
+                // හෙඩර්ස් ටික කැඩී යාම වැළැක්වීමට එකම පේළියක තබා ඇත
+                '-headers', 'Referer: https://www.sonyliv.com/\x0d\x0aOrigin: https://www.sonyliv.com\x0d\x0a'
             ])
             .outputOptions([
                 '-threads', '4',               
-                '-c:v', 'copy',                // Original Video Quality (No re-encode)
-                '-c:a', 'copy',                // Original Audio (No re-encode)
+                '-c:v', 'copy',                
+                '-c:a', 'copy',                
                 '-max_muxing_queue_size', '9999',
                 '-f', 'flv'
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('ENG vs SL FFmpeg Stream spawned:', commandLine);
+                console.log('FFmpeg Stream successfully spawned:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -86,10 +81,9 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Sri Lanka vs England Live stream started successfully! 🏏🔥</h2>');
+    res.send('<h2>ENG vs SL Live stream started with token fix! 🏏🔥</h2>');
 });
 
-// ලයිව් එක නතර කරන්න රූට් එක
 app.get('/stop-live', (req, res) => {
     if (activeStreamProcess) {
         activeStreamProcess.kill('SIGKILL');
