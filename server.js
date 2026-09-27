@@ -23,13 +23,13 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // MSN සහ Part නැති කරපු Clean Base Link එක (අලුත්ම pkey එක සමඟ)
+    // Fancode ක්‍රිකට් මැච් M3U8 ලින්ක් එක
     const streamUrl = "https://in-mc-flive.fancode.com/mumbai/4249779_english_hls_5b5f2be03a98278_1ta-di_h264/1080p.m3u8?hdntl=Expires=1790581085~_GO=Generated~acl=/mumbai/4249779_english_hls_5b5f2be03a98278_1ta-di_h264/*~Signature=AUh_zpXFFvBB8PuYQyTwqkTbh5t9O99Uz2sf4GLwTO5cw_FC4K23xHq_UDqNKAUSqVOmXusOwFRDws5oXvKk6aY-YtcN";
     
     // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Telegram Live streaming from Base URL:', streamUrl);
+    console.log('Starting Fancode Cricket Live Stream:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -47,27 +47,28 @@ app.post('/start-live', (req, res) => {
                 '-probesize 50M',
                 '-analyzeduration 20M',
                 '-user_agent', 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/153.0.0.0 Mobile Safari/537.36',
-                '-headers', 'Referer: https://mycamtv.com\r\nOrigin: https://mycamtv.com\r\n'
+                // Fancode සවර් එකට අවශ්‍ය Referer සහ Origin හෙඩර්ස්
+                '-headers', 'Referer: https://www.fancode.com/\r\nOrigin: https://www.fancode.com\r\n'
             ])
             .outputOptions([
                 '-sws_flags', 'fast_bilinear',
-                '-vf', 'setpts=0.998*PTS,crop=in_w-40:in_h-40:20:20,scale=1280:720,eq=saturation=1.1:contrast=1.15,' +
+                '-vf', 'setpts=0.998*PTS,scale=1280:720,eq=saturation=1.1:contrast=1.15,' +
                        'drawbox=x=1140:y=25:w=100:h=65:color=black@0.85:t=fill,' +
                        'drawbox=x=1140:y=25:w=100:h=65:color=yellow@0.9:t=2,' +
                        'drawtext=text=LANKA:fontcolor=white:fontsize=18:x=1165:y=32,' +
                        'drawtext=text=LIVE:fontcolor=yellow:fontsize=20:x=1158:y=55,' +
                        'drawtext=text=SHARE_NOW:fontcolor=white@0.75:fontsize=22:x=(w-text_w)/2:y=h-50',
             
-                '-af', 'atempo=1.002,rubberband=pitch=1.08:tempo=1.0',
+                '-af', 'atempo=1.002',
 
                 '-threads', '4',               
                 '-r', '25',                    
                 '-c:v', 'libx264',
                 '-preset', 'ultrafast',        
                 '-tune', 'zerolatency',
-                '-b:v', '1000k',               
-                '-maxrate', '1400k',
-                '-bufsize', '2800k',
+                '-b:v', '1500k',               
+                '-maxrate', '2000k',
+                '-bufsize', '4000k',
                 '-pix_fmt', 'yuv420p',
                 '-g', '50',                    
                 '-c:a', 'aac',
@@ -78,7 +79,7 @@ app.post('/start-live', (req, res) => {
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('FFmpeg Stream spawned:', commandLine);
+                console.log('Fancode FFmpeg Stream spawned:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -104,7 +105,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Telegram Live stream started with Base Link! 🚀🔥</h2>');
+    res.send('<h2>Fancode Cricket Live stream started successfully! 🏏🔥🚀</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
