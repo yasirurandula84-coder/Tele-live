@@ -23,13 +23,15 @@ app.post('/start-live', (req, res) => {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // Sony / Akamai Live M3U8 ලින්ක් එක
-    const streamUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/master.m3u8?hdnea=exp=1790544032~acl=/*~id=94549746042195441414919381662442~hmac=95e09da6d7e4a59ae5f2740e0effa5928c46e5a24f6d0caec0fa865e3f3e91da";
+    // JSON එකෙන් ගත්ත Sri Lanka vs England (3rd ODI) මැච් එකේ base_url සහ token එක එකතු කළ සම්පූර්ණ ලින්ක් එක
+    const baseUrl = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/master.m3u8";
+    const token = "?hdnea=exp=1790544032~acl=/*~id=94549746042195441414919381662442~hmac=95e09da6d7e4a59ae5f2740e0effa5928c46e5a24f6d0caec0fa865e3f3e91da";
+    const streamUrl = baseUrl + token;
     
     // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting Sony Akamai Live Stream:', streamUrl);
+    console.log('Starting Sri Lanka vs England ODI Live Stream:', streamUrl);
 
     function startStream() {
         if (activeStreamProcess) {
@@ -46,7 +48,6 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
                 '-analyzeduration 20M',
-                // Akamai / Sony සර්වර් එකට ගැළපෙන User-Agent සහ Headers
                 '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 '-headers', 'Referer: https://www.sonyliv.com/\r\nOrigin: https://www.sonyliv.com\r\nAccept: */*\r\nConnection: keep-alive\r\n'
             ])
@@ -59,7 +60,7 @@ app.post('/start-live', (req, res) => {
             ])
             .output(customRtmpUrl)
             .on('start', (commandLine) => {
-                console.log('Sony Akamai FFmpeg Stream spawned:', commandLine);
+                console.log('ENG vs SL FFmpeg Stream spawned:', commandLine);
             })
             .on('error', (err) => {
                 console.error('Streaming error encountered:', err.message);
@@ -85,7 +86,7 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>Sony Akamai Live stream started successfully! 🚀🔥</h2>');
+    res.send('<h2>Sri Lanka vs England Live stream started successfully! 🏏🔥</h2>');
 });
 
 // ලයිව් එක නතර කරන්න රූට් එක
