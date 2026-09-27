@@ -35,7 +35,7 @@ app.post('/start-live', (req, res) => {
             activeStreamProcess = null;
         }
 
-        const command = ffmpeg(streamUrl)
+                const command = ffmpeg(streamUrl)
             .inputOptions([
                 '-re',
                 '-reconnect 1',
@@ -44,10 +44,11 @@ app.post('/start-live', (req, res) => {
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 100M',
                 '-analyzeduration 50M',
-                // VLC මඟින් වැඩ කළ නිවැරදි Browser User-Agent එක සහ Headers
-                '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                // SonyLIV Mobile App එකේ User-Agent එක භාවිත කිරීම
+                '-user_agent', 'okhttp/4.9.2',
                 '-headers', 'Referer: https://www.sonyliv.com/\x0d\x0aOrigin: https://www.sonyliv.com\x0d\x0a'
             ])
+
             .outputOptions([
                 '-threads', '4',               
                 '-c:v', 'copy',                // Video එක Re-encode නොකර Copy කිරීම (CPU Load අඩුයි)
