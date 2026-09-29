@@ -16,19 +16,15 @@ app.use(express.json());
 
 let activeStreamProcess = null;
 
-// Telegram වෙත ලයිව් එක පටන් ගන්න රූට් එක
 app.post('/start-live', (req, res) => {
     if (activeStreamProcess) {
         return res.status(400).send('A stream is already running! Stop it first.');
     }
 
-    // SkyGo HLS Live Stream URL එක
     const streamUrl = "https://cdn4.skygo.mn/live/disk1/Babes/HLSv3-FTA/Babes.m3u8";
-    
-    // Telegram RTMP URL සහ Stream Key එක
     const customRtmpUrl = "rtmps://dc5-1.rtmp.t.me/s/5354366305:dpVgaYMrS29jhGd-KrvepQ";
 
-    console.log('Starting SkyGo Live Stream:', streamUrl);
+    console.log('Starting SkyGo Live Stream with Proper Headers...');
 
     function startStream() {
         if (activeStreamProcess) {
@@ -44,7 +40,10 @@ app.post('/start-live', (req, res) => {
                 '-reconnect_delay_max 5',
                 '-fflags +discardcorrupt+genpts+nobuffer',
                 '-probesize 50M',
-                '-analyzeduration 20M'
+                '-analyzeduration 20M',
+                // SkyGo සර්වර් එකට අවශ්‍ය කරන නිවැරදි User-Agent සහ Headers
+                '-user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                '-headers', 'Referer: https://www.skygo.mn/\x0d\x0aOrigin: https://www.skygo.mn\x0d\x0aAccept: */*\x0d\x0a'
             ])
             .outputOptions([
                 '-threads', '4',               
@@ -81,10 +80,9 @@ app.post('/start-live', (req, res) => {
 
     startStream();
 
-    res.send('<h2>SkyGo Live stream started successfully! 🚀🔥</h2>');
+    res.send('<h2>SkyGo Live stream started successfully with Headers! 🚀🔥</h2>');
 });
 
-// ලයිව් එක නතර කරන්න රූට් එක
 app.get('/stop-live', (req, res) => {
     if (activeStreamProcess) {
         activeStreamProcess.kill('SIGKILL');
