@@ -20,7 +20,7 @@ app.use(express.json());
 let activeStreamProcess = null;
 
 // මූලික Akamai HLS ලින්ක් එක
-const TARGET_STREAM = "https://sonydaimenew.akamaized.net/hls/live/2022317/criclive2709/ENG/std_lrh-800300010.m3u8?hdnea=exp=1790543196~acl=/*~id=62955783839668586974472942213864~hmac=5aaf548e4fd89269c7f41b0f3dcd7aee0c80f6453c72821825c044ea07340578";
+const TARGET_STREAM = "https://cdn4.skygo.mn/live/disk1/Babes/HLSv3-FTA/Babes.m3u8";
 
 // 1. Local Proxy Route එක (403 Error එක නැති කිරීමට VLC User-Agent සහ Headers සමඟ m3u8 ෆෙච් කිරීම)
 app.get('/proxy.m3u8', async (req, res) => {
@@ -28,7 +28,7 @@ app.get('/proxy.m3u8', async (req, res) => {
         const response = await fetch(TARGET_STREAM, {
             headers: {
                 'User-Agent': 'VLC/3.0.20 LibVLC/3.0.20',
-                'Referer': 'https://www.sonyliv.com/'
+                'Referer': 'https://www.babestv.com/'
             }
         });
         
